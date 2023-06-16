@@ -7,7 +7,7 @@ n_scheda = numero del selettore impostato
     sul controller ( +1 ). Ovvero se sul controller è impostato
     0 qui va scritto 1 e via cosi.... ( da 1 a 10 )
 n_serratura = numero della serratura (dipende dal connettore al
-quale è collegata la serratura - da 1 a 16 )
+    quale è collegata la serratura - da 1 a 16 )
 dimensione = dimensione dello sportello in moduli ( 1x, 2x, 3x... ecc )
 enabled = sempre da settare e 1
 

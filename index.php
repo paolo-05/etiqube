@@ -1,82 +1,66 @@
 <?php
-$sportelliRimanenti = 10;
-$configuration = array();
+session_start();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $sportelliRimanenti = intval($_POST["sportelli"]);
-    $dimensione = 1;
-
-    switch ($_POST["dimensione"]) {
-        case "1x":
-            $dimensione = 1;
-            break;
-        case "2x":
-            $dimensione = 2;
-            break;
-        case "3x":
-            $dimensione = 3;
-            break;
-    }
-    $sportelliRimanenti -= $dimensione;
-
-    $columnNumber = isset($_GET["column-number"]) ? intval($_GET["column-number"]) : 1;
-    $configuration[] = array("column" => $columnNumber, "dimension" => $dimensione);
+// Check if the user is already logged in
+if (isset($_SESSION['username'])) {
+    header("Location: homepage.php");
+    exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["configuration"])) {
-    $configuration = $_POST["configuration"];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Check if the password is correct
+    if ($password === '1111') {
+        $_SESSION['username'] = $username;
+        header("Location: homepage.php");
+        exit();
+    } else {
+        $errorMessage = 'Incorrect password';
+    }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta name="google" content="nostranslate">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore</title>
+    <title>Login Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <form method="GET" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-        <label for="column-number">Numero della colonna: </label>
-        <input type="number" name="column-number" required value="1" min="1" max="10">
-        <input type="submit" name="submit" value="comincia a configurare">
-    </form>
-    <br>
-    <?php if (isset($_GET['column-number']) || $_SERVER["REQUEST_METHOD"] == "POST") : ?>
-        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-            <input type="hidden" name="sportelli" value="<?php echo $sportelliRimanenti; ?>">
-            <input type="hidden" name="configuration" value="<?php echo htmlspecialchars(json_encode($configuration)); ?>">
-            <?php
-            echo "Slot rimanenti: $sportelliRimanenti<br>";
-            echo "Grandezza: <select name='dimensione'><option value='1x'>1x</option><option value='2x'>2x</option><option value='3x'>3x</option></select>";
-            if ($sportelliRimanenti > 0) {
-                echo "<br><input type='submit' name='submit' value='Prossimo sportello'>";
-            } else {
-                echo "<br><input type='submit' disabled name='submit' value='Prossimo sportello'>";
-            }
-            ?>
+    <div class="container">
+        <h2 class="text-center">Login</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <input type="text" name="username" class="form-control" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </div>
+            <?php if (isset($errorMessage)) : ?>
+                <p class="error text-center"><?php echo $errorMessage; ?></p>
+            <?php endif; ?>
         </form>
-    <?php endif; ?>
-
-    <?php if (!empty($configuration)) : ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Column</th>
-                    <th>Dimension</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($configuration as $config) : ?>
-                    <tr>
-                        <td><?php echo $config["column"]; ?></td>
-                        <td><?php echo $config["dimension"]; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
+    </div>
 </body>
 </html>
