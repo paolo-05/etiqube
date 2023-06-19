@@ -25,54 +25,60 @@ function insertSlot($n_sportello, $n_scheda, $n_serratura, $dimensione)
     }
 }
 
-// Function to update the dimension of a slot in the database
-function updateSlotDimension($n_sportello, $n_scheda, $dimensione)
-{
+function getConfiguration(){
     global $db;
 
     try {
-        $stmt = $db->prepare("UPDATE scomparti SET dimensione = ? WHERE n_sportello = ? AND n_scheda = ?");
-        $stmt->execute([$dimensione, $n_sportello, $n_scheda]);
-    } catch (PDOException $e) {
-        die("Error updating slot dimension: " . $e->getMessage());
-    }
-}
-
-// Function to update the enabled status of a slot in the database
-function updateSlotEnabled($n_sportello, $n_scheda, $enabled)
-{
-    global $db;
-
-    try {
-        $stmt = $db->prepare("UPDATE scomparti SET enabled = ? WHERE n_sportello = ? AND n_scheda = ?");
-        $stmt->execute([$enabled, $n_sportello, $n_scheda]);
-    } catch (PDOException $e) {
-        die("Error updating slot enabled status: " . $e->getMessage());
-    }
-}
-
-// Function to increment the n_scheda and reset slots
-function incrementNScheda($n_sportello, $current_n_scheda)
-{
-    global $db;
-
-    $next_n_scheda = $current_n_scheda + 1;
-
-    // Check if the next n_scheda is within the allowed range (1-10)
-    if ($next_n_scheda <= 10) {
-        try {
-            // Reset slots for the next n_scheda
-            $stmt = $db->prepare("UPDATE scomparti SET enabled = 0 WHERE n_sportello = ? AND n_scheda = ?");
-            $stmt->execute([$n_sportello, $next_n_scheda]);
-            
-            return $next_n_scheda;
+        $stmt = $db->query("SELECT * FROM scomparti");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            die("Error incrementing n_scheda: " . $e->getMessage());
-        }
+        die("Error fetching configuration: ". $e->getMessage());
     }
-
-    return $current_n_scheda;
 }
 
+function getNumeroColonne(){
+    global $db;
+    
+    try {
+        $stmt = $db->query("SELECT * FROM `scomparti` ORDER BY ID DESC LIMIT 1;");
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $response[0]['n_scheda'];
+        } catch (PDOException $e) {
+        die("Error fetching numero colonne: ". $e->getMessage());
+    }
+}
+
+function getNumeroSportelli()
+{
+    global $db;
+    try{
+        $stmt = $db->query("SELECT COUNT(*) FROM `scomparti`;");
+        $response =  $stmt->fetch(PDO::FETCH_ASSOC);
+        return $response['COUNT(*)'];
+    } catch (PDOException $e) {
+        die("Error fetching numero sportelli: ". $e->getMessage());
+    }
+}
+
+function deleteConfiguration(){
+    global $db;
+    try{
+        $stmt = $db->query("DELETE FROM `scomparti`");
+        $stmt->execute();
+        return true;
+    } catch (PDOException $e) {
+        echo "Error deleting configuration: ". $e->getMessage();
+        return false;
+    }
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['action']) && $_GET['action'] == 'deleteCofiguration'){
+    $result = deleteConfiguration();
+    if ($result) {
+        echo json_encode(['status' => 'success', 'message' => 'Configuration deleted successfully']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to delete configuration']);
+    }
+}
 
 ?>

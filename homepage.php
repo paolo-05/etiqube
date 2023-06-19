@@ -1,5 +1,4 @@
 <!-- homepage.php -->
-<!-- homepage.php -->
 <?php
 session_start();
 
@@ -21,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="google" content="notranslate">
     <title>Homepage</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
                         <img src="https://i.ytimg.com/vi/8fgCk1wdNek/maxresdefault.jpg" alt="Image 1" class="img-fluid">
                     </div>
                     <div class="card-footer">
-                        <a href="/pages/configura-colonna.php" class="btn btn-primary">Go to Configura Colonna</a>
+                        <a href="/pages/configura-colonna.php" class="btn btn-primary">Vai a Configura Colonna</a>
                     </div>
                 </div>
             </div>
@@ -51,13 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
             <div class="col">
                 <div class="card">
                     <div class="card-header">
-                        Python Scritp Execution
+                    Test Sensori Sportelli
                     </div>
                     <div class="card-body">
-                        <img src="https://logos-world.net/wp-content/uploads/2021/10/Python-Logo.png" alt="Image 2" class="img-fluid">
+                        <img src="https://hatrabbits.com/wp-content/uploads/2018/10/risky-assumptions.jpg" alt="Image 2" class="img-fluid">
                     </div>
                     <div class="card-footer">
-                        <a href="/pages/python-script-execution.php" class="btn btn-primary">Go to Python Script Execution</a>
+                        <a href="/pages/test-sensori.php" class="btn btn-primary">Vai a Test Sensori Sportelli</a>
                     </div>
                 </div>
             </div>
