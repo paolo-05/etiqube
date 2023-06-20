@@ -1,0 +1,13 @@
+.console {
+  background-color: #000;
+  color: #fff;
+  padding: 10px;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 16px;
+}
+
+.console pre {
+  margin: 0;
+}

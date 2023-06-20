@@ -6,20 +6,12 @@ session_start();
 if (!isset($_SESSION['username'])) {
     session_unset();
     session_destroy();
-    header("Location: /");
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
-    // Clear the session and redirect to the login page
-    session_unset();
-    session_destroy();
-    header("Location: /");
+    header("Location: /index.php");
     exit();
 }
 
 // Verifica se il file di connessione al database esiste
-if (!file_exists("db_connection.php")) {
+if (!file_exists("./../api/db_connection.php")) {
     die("File di connessione al database non trovato.");
 }
 
@@ -30,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['prossima-colonna'])) 
     $n_scheda = $_POST['n_scheda'] + 1;
     $available = [false, true, false];
     $n_serratura = 1;
+
+    $configuratore_attivo = true;
 }
 // Inserimento vano tecnico
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inserimento-vano'])) {
@@ -45,13 +39,15 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inserimento-vano'
     // Decremento degli slot rimanenti in base alla dimensione precedente
     $slot_rimanenti -= $dimension_int;
 
-    require_once "db_connection.php";
+    require_once "./../api/db_connection.php";
     insertSlot($n_sportello, $n_scheda, $n_serratura, $dimensione);
 
     $available = [true, true, true];
     $vano_tecnico_inseribile = false;
     $_SESSION['vano-inserito'] = true;
     $n_serratura++;
+
+    $configuratore_attivo = true;
 }
 // Situazione normale
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -67,7 +63,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Decremento degli slot rimanenti in base alla dimensione precedente
     $slot_rimanenti -= $dimension_int;
 
-    require_once "db_connection.php";
+    require_once "./../api/db_connection.php";
     insertSlot($n_sportello, $n_scheda, $n_serratura, $dimensione);
 
     switch ($slot_rimanenti) {
@@ -100,6 +96,8 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Incremento del numero degli sportelli usati
     $n_sportello++;
     $n_serratura++;
+
+    $configuratore_attivo = true;
 }
 // Se la pagina viene richiesta con il metodo GET
 elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -110,80 +108,137 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $vano_tecnico_inseribile = false;
     $_SESSION['vano-inserito'] = false;
+
+    $configuratore_attivo = true;
+}
+
+include_once './../api/db_connection.php';
+$n_colonne = getNumeroColonne();
+$sportelli = getConfiguration();
+
+if($sportelli != null && $n_sportello == 1 ){
+    $configuratore_attivo = false;
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Configura Colonna</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="../style.css">
+    <meta name="google" content="notranslate">
+    <title>Configuratore Colonna</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/styles/page.css">
+    <link rel="stylesheet" type="text/css" href="../styles/table.css">
 </head>
 <body>
     <div class="container">
         <div class="logout-btn">
-            <form method="POST">
-                <button type="submit" name="logout" class="btn btn-primary">Logout</button>
-            </form>
-        </div>
-        <h2>Configura Colonna</h2>
-        <form method="POST" action="configura-colonna.php">
-            <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>">
-            <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
-            <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>">
-
-            <div class="mb-3">
-                <h5>Slot Rimanenti: <?php echo $slot_rimanenti ?>, Colonna numero: <?php echo $n_scheda ?></h5>
-                <label for="dimensione" class="form-label">Dimensione Sportello:</label>
-                <label for="dimensione"><small class="text-muted">(partendo dall'alto, il primo slot deve avere dimensione 2x, il vano tecnico è inseribile solo dopo il primo slot)</small></label>
-                <select class="form-select" name="dimensione" id="dimensione">
-                    <?php echo $available[0] ? "<option value='1x'>1x</option>" : '' ?>
-                    <?php echo $available[1] ? "<option value='2x'>2x</option>" : '' ?>
-                    <?php echo $available[2] ? "<option value='3x'>3x</option>" : '' ?>
-                </select>
-
-                <label for="n_serratura" class="form-label">Numero della serratura</label>
-                <input id="n_serratura" type="number" name="n_serratura" class="form-control" id="n_serratura" value="<?php echo $n_serratura ?>" required>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-primary" id="home" disabled>Torna alla Homepage</button>
+                <button type="button" class="btn btn-danger" id="logout">Logout</button>
             </div>
-            <?php echo ($slot_rimanenti > 0) ? '<button type="submit" class="btn btn-primary">Prossimo Slot</button>' : '<button type="submit" disabled class="btn btn-primary">Prossimo Slot</button>' ?>
-        </form>
-        <br>
+        </div>
         <div class="row">
             <div class="col">
+                <h2>Configuratore Colonna</h2>
+                <form method="POST" action="configura-colonna.php">
+                    <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>" id="n_sportello">
+                    <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
+                    <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>">
+
+                    <div class="mb-3">
+                        <h5>Slot Rimanenti: <?php echo $slot_rimanenti ?>, Colonna numero: <?php echo $n_scheda ?></h5>
+                        <label for="dimensione" class="form-label">Dimensione Sportello:</label>
+                        <label for="dimensione"><small class="text-muted">(partendo dall'alto, il primo slot deve avere dimensione 2x, il vano tecnico è inseribile solo dopo il primo slot)</small></label>
+                        <select class="form-select" name="dimensione" id="dimensione">
+                            <?php echo $available[0] ? "<option value='1x'>1x</option>" : '' ?>
+                            <?php echo $available[1] ? "<option value='2x'>2x</option>" : '' ?>
+                            <?php echo $available[2] ? "<option value='3x'>3x</option>" : '' ?>
+                        </select>
+
+                        <label for="n_serratura" class="form-label">Numero della serratura</label>
+                        <input type="number" class="form-control" id="n_serratura" name="n_serratura" id="n_serratura" value="<?php echo $n_serratura ?>" required>
+                    </div>
+                    <div class="d-grid gap-2 mb-2">
+                        <button type="submit" class="btn btn-primary" <?php echo ($slot_rimanenti > 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossimo Slot</button>
+                    </div>
+                </form>
                 <form method="POST" action="configura-colonna.php">
                     <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>">
                     <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
                     <input type="hidden" name="n_serratura" value="<?php echo "$n_serratura" ?>" id="n_serratura-hidden">
-                    <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>">
+                    <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>" id="slot_rimanenti">
                     <input type="hidden" name="dimensione" value="2x">
                     <input type="hidden" name="inserimento-vano" value="true">
-                    <?php echo $vano_tecnico_inseribile ? '<button type="submit" class="btn btn-primary">Inserisci Vano Tecnico</button>' : '<button type="submit" disabled class="btn btn-primary">Inserisci Vano Tecnico</button>' ?>
+                    <div class="d-grid gap-2 mb-2">
+                        <button type="submit" class="btn btn-primary" <?php echo $vano_tecnico_inseribile ? '' : 'disabled' ?>>Inserisci Vano Tecnico</button>
+                    </div>
                 </form>
-
-            </div>
-            <div class="col">
                 <form method="POST" action="configura-colonna.php">
-                    <?php echo $slot_rimanenti == 0 ? "<input type='hidden' name='prossima-colonna' value='true'>" : '' ?>
+                    <?php echo ($slot_rimanenti == 0 && $configuratore_attivo) ? "<input type='hidden' name='prossima-colonna' value='true'>" : '' ?>
                     <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>">
                     <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
-                    <?php echo $slot_rimanenti == 0 ? "<button type='submit' class='btn btn-primary'>Prossima Colonna</button>" : '' ?>
+                    <div class="d-grid gap-2 mb-2">
+                        <button type='submit' class='btn btn-primary' <?php echo ($slot_rimanenti == 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossima Colonna</button>
+                    </div>
                 </form>
             </div>
+            <div class="col">
+                <h2>Riepilogo configurazione Locker</h2>
+                <div class="table-container">
+                    <?php $counter = 0;
+
+                    for($i = 0; $i < $n_colonne; $i++) {
+                        echo "<table>";
+                        while(true){
+                            if($sportelli[$counter]['n_scheda'] != ($i+1)){
+                                break;
+                            }
+                            $dimensione = $sportelli[$counter]['dimensione'];
+                            $dimensione_int = intval(substr($dimensione, 0, -1));
+                            $height = $dimensione_int * 30;
+
+                            if($sportelli[$counter]['n_sportello'] == $sportelli[$counter + 1]['n_sportello']){
+                                echo "<tr><td><svg style='border: solid #000' width='100' height='{$height}'><rect width='100' height='{$height}' fill='#fff' /></svg></td></tr>";
+                            } else {
+                                echo "<tr><td><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#000' /></svg></td></tr>";
+                            }
+                            $counter+=1;
+                        }
+                        echo "</table>";
+                    }
+                    ?>
+                </div>
+                <br><br>
+                <div class="row">
+                    <div class="col">
+                        <svg width="25" height="25" style="border: solid #000"><rect width="25" height="25" fill="#fff" /></svg></td>
+                        Blocco bianco: Vano tecnico
+                        <br><br>
+                        <svg width="25" height="25" style="border: solid #000"><rect width="25" height="25" fill="#000" /></svg></td>
+                        Blocco Nero: Sportello normale
+                    </div>
+                </div>
+            </div>
         </div>
-        <br>
-        <div class="row">
-            <form method="POST" action="riepilogo.php">
-                <?php echo $slot_rimanenti == 0 ? "<button type='submit' class='btn btn-primary'>Concludi la configurazione</button>" : '' ?>
-            </form>
+        <div class="mt-4 mb-4">
+            <div class="row">
+                <div class="col">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success" id="btn-concludi" disabled>Concludi la configurazione</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-danger" id="deleteConfiguration">Ricomincia la configurazione</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-<script>
-    const n_serraturaInput = document.getElementById("n_serratura");
-    n_serraturaInput.addEventListener("change", function () {
-        const n_serraturaHidden = document.getElementById("n_serratura-hidden");
-        n_serraturaHidden.value = this.value;
-    });
-</script>
+    <script src="../scripts/configura-colonna.js">
+        window.localStorage.setItem('vano-inserito', <?php echo $_SESSION['vano-inserito'] ?>);
+    </script>
+    <script src="../scripts/logout.js"></script>
 </body>
 </html>
