@@ -131,6 +131,23 @@ if($sportelli != null && $n_sportello == 1 ){
     <link rel="stylesheet" type="text/css" href="../styles/table.css">
 </head>
 <body>
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirma Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sicuro di effettuare il logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancella</button>
+                <button type="button" class="btn btn-danger" id="confirmLogout">Logout</button>
+            </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="logout-btn">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -198,10 +215,16 @@ if($sportelli != null && $n_sportello == 1 ){
                             $dimensione_int = intval(substr($dimensione, 0, -1));
                             $height = $dimensione_int * 30;
 
+                            $n_sportello = $sportelli[$counter]['n_sportello'];
+                            $_scheda = $sportelli[$counter]['n_scheda'];
+                            $n_serratura = $sportelli[$counter]['n_serratura'];
+
                             if($sportelli[$counter]['n_sportello'] == $sportelli[$counter + 1]['n_sportello']){
-                                echo "<tr><td><svg style='border: solid #000' width='100' height='{$height}'><rect width='100' height='{$height}' fill='#fff' /></svg></td></tr>";
+                                $tooltip_html = "<b>Vano Tecnico</b><br><b>Numero colonna</b>: $n_scheda";
+                                echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}' style='border: solid #000'><rect width='100' height='{$height}' fill='#fff' /></svg></a></td></tr>";
                             } else {
-                                echo "<tr><td><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#000' /></svg></td></tr>";
+                                $tooltip_html = "<b>Numero sportello</b>: $n_sportello<br><b>Dimensione</b>: $dimensione<br><b>Numero colonna</b>: $n_scheda<br><b>Numero serratura</b>: $n_serratura";
+                                echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#000' /></svg></a></td></tr>";
                             }
                             $counter+=1;
                         }
@@ -236,9 +259,18 @@ if($sportelli != null && $n_sportello == 1 ){
             </div>
         </div>
     </div>
-    <script src="../scripts/configura-colonna.js">
-        window.localStorage.setItem('vano-inserito', <?php echo $_SESSION['vano-inserito'] ?>);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="../scripts/configura-colonna.js"></script>
     <script src="../scripts/logout.js"></script>
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+    <script>
+        console.log("<?php echo $_SESSION['vano-inserito'] ? true : false ?>");
+        window.localStorage.setItem('vano-inserito', "<?php echo $_SESSION['vano-inserito'] ? true : false ?>");
+    </script>
 </body>
 </html>

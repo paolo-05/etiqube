@@ -19,6 +19,23 @@ if (!isset($_SESSION['username'])) {
     <link rel="stylesheet" type="text/css" href="../styles/page.css">
 </head>
 <body>
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirma Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sicuro di effettuare il logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancella</button>
+                <button type="button" class="btn btn-danger" id="confirmLogout">Logout</button>
+            </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="logout-btn">
             <button type="button" class="btn btn-danger" id="logout">Logout</button>
@@ -54,6 +71,7 @@ if (!isset($_SESSION['username'])) {
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="../scripts/logout.js"></script>
 </body>
 </html>

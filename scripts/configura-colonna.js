@@ -26,7 +26,7 @@ if (slotRimanenti == 0) {
       return;
     }
     alert("Configurazione salvata con successo!");
-    window.location.href = "/homepage.php";
+    window.location = "/index.php";
   });
 }
 
@@ -53,7 +53,7 @@ deleteConfigurationButton.addEventListener("click", function (event) {
       if (confirmation) {
         window.location = "configura-colonna.php";
       } else {
-        window.location = "/homepage.php";
+        window.location = "/index.php";
       }
     }
   };
