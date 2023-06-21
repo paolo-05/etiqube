@@ -40,7 +40,7 @@ if (!isset($_SESSION['username'])) {
         <div class="logout-btn">
             <button type="button" class="btn btn-danger" id="logout">Logout</button>
         </div>
-        <h2>Benvenuto <?php echo $_SESSION['username'] ?>!</h2>
+        <h2>Benvenuto <?= $_SESSION['username'] ?>!</h2>
         <div class="row row-cols-1 row-cols-md-2 g-4">
             <div class="col">
                 <div class="card">

@@ -112,6 +112,8 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $configuratore_attivo = true;
 }
 
+$counter = 0;
+
 include_once './../api/db_connection.php';
 $n_colonne = getNumeroColonne();
 $sportelli = getConfiguration();
@@ -159,44 +161,45 @@ if($sportelli != null && $n_sportello == 1 ){
             <div class="col">
                 <h2>Configuratore Colonna</h2>
                 <form method="POST" action="configura-colonna.php">
-                    <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>" id="n_sportello">
-                    <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
-                    <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>">
+                    <input type="hidden" name="n_sportello" value="<?= $n_sportello ?>" id="n_sportello">
+                    <input type="hidden" name="n_scheda" value="<?= $n_scheda?>">
+                    <input type="hidden" name="slot_rimanenti" value="<?= $slot_rimanenti ?>">
 
                     <div class="mb-3">
-                        <h5>Slot Rimanenti: <?php echo $slot_rimanenti ?>, Colonna numero: <?php echo $n_scheda ?></h5>
+                        <h5>Slot Rimanenti: <?= $slot_rimanenti ?>, Colonna numero: <?= $n_scheda ?></h5>
                         <label for="dimensione" class="form-label">Dimensione Sportello:</label>
                         <label for="dimensione"><small class="text-muted">(partendo dall'alto, il primo slot deve avere dimensione 2x, il vano tecnico è inseribile solo dopo il primo slot)</small></label>
                         <select class="form-select" name="dimensione" id="dimensione">
-                            <?php echo $available[0] ? "<option value='1x'>1x</option>" : '' ?>
-                            <?php echo $available[1] ? "<option value='2x'>2x</option>" : '' ?>
-                            <?php echo $available[2] ? "<option value='3x'>3x</option>" : '' ?>
+                            <?php for($i = 0; $i < count($available); $i++): ?>
+                                <?php $dimensione = ($i +1).'x' ?>
+                                <?= $available[$i] ? "<option value='$dimensione'>$dimensione</option>" : '' ?>
+                            <?php endfor;?>
                         </select>
 
                         <label for="n_serratura" class="form-label">Numero della serratura</label>
-                        <input type="number" class="form-control" id="n_serratura" name="n_serratura" id="n_serratura" value="<?php echo $n_serratura ?>" required>
+                        <input type="number" class="form-control" id="n_serratura" name="n_serratura" id="n_serratura" value="<?= $n_serratura ?>" required>
                     </div>
                     <div class="d-grid gap-2 mb-2">
-                        <button type="submit" class="btn btn-primary" <?php echo ($slot_rimanenti > 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossimo Slot</button>
+                        <button type="submit" class="btn btn-primary" <?= ($slot_rimanenti > 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossimo Slot</button>
                     </div>
                 </form>
                 <form method="POST" action="configura-colonna.php">
-                    <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>">
-                    <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
-                    <input type="hidden" name="n_serratura" value="<?php echo "$n_serratura" ?>" id="n_serratura-hidden">
-                    <input type="hidden" name="slot_rimanenti" value="<?php echo $slot_rimanenti ?>" id="slot_rimanenti">
+                    <input type="hidden" name="n_sportello" value="<?= $n_sportello ?>">
+                    <input type="hidden" name="n_scheda" value="<?= $n_scheda?>">
+                    <input type="hidden" name="n_serratura" value="<?= "$n_serratura" ?>" id="n_serratura-hidden">
+                    <input type="hidden" name="slot_rimanenti" value="<?= $slot_rimanenti ?>" id="slot_rimanenti">
                     <input type="hidden" name="dimensione" value="2x">
                     <input type="hidden" name="inserimento-vano" value="true">
                     <div class="d-grid gap-2 mb-2">
-                        <button type="submit" class="btn btn-primary" <?php echo $vano_tecnico_inseribile ? '' : 'disabled' ?>>Inserisci Vano Tecnico</button>
+                        <button type="submit" class="btn btn-primary" <?= $vano_tecnico_inseribile ? '' : 'disabled' ?>>Inserisci Vano Tecnico</button>
                     </div>
                 </form>
                 <form method="POST" action="configura-colonna.php">
-                    <?php echo ($slot_rimanenti == 0 && $configuratore_attivo) ? "<input type='hidden' name='prossima-colonna' value='true'>" : '' ?>
-                    <input type="hidden" name="n_sportello" value="<?php echo $n_sportello ?>">
-                    <input type="hidden" name="n_scheda" value="<?php echo $n_scheda?>">
+                    <?= ($slot_rimanenti == 0 && $configuratore_attivo) ? "<input type='hidden' name='prossima-colonna' value='true'>" : '' ?>
+                    <input type="hidden" name="n_sportello" value="<?= $n_sportello ?>">
+                    <input type="hidden" name="n_scheda" value="<?= $n_scheda?>">
                     <div class="d-grid gap-2 mb-2">
-                        <button type='submit' class='btn btn-primary' <?php echo ($slot_rimanenti == 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossima Colonna</button>
+                        <button type='submit' class='btn btn-primary' <?= ($slot_rimanenti == 0 && $configuratore_attivo) ? '' : 'disabled' ?>>Prossima Colonna</button>
                     </div>
                 </form>
             </div>
@@ -204,7 +207,6 @@ if($sportelli != null && $n_sportello == 1 ){
                 <h2>Riepilogo configurazione Locker</h2>
                 <div class="table-container">
                     <?php $counter = 0;
-
                     for($i = 0; $i < $n_colonne; $i++) {
                         echo "<table>";
                         while(true){
@@ -269,8 +271,7 @@ if($sportelli != null && $n_sportello == 1 ){
         })
     </script>
     <script>
-        console.log("<?php echo $_SESSION['vano-inserito'] ? true : false ?>");
-        window.localStorage.setItem('vano-inserito', "<?php echo $_SESSION['vano-inserito'] ? true : false ?>");
+        window.localStorage.setItem('vano-inserito', "<?= $_SESSION['vano-inserito'] ? true : false ?>");
     </script>
 </body>
 </html>

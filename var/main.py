@@ -1,8 +1,19 @@
 import random
 import sys
 
-states = ['vuoto', 'pieno']
+def main():
 
-state = random.choice(states)
+    states = ['vuoto', 'pieno']
 
-print(f"Lo sportello numero {sys.argv[1]} è {state}.")
+    state = random.choice(states)
+
+    if(len(sys.argv) == 1):
+        return print("Numero dello sportello richiesto come argomento nella riga di comando.")
+    if(len(sys.argv) > 2):
+        return print("Troppi argomenti")
+
+    print(f"Lo sportello numero {sys.argv[1]} è {state}.")
+
+
+if __name__ == '__main__':
+    main()

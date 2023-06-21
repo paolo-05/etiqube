@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         <div class="mb-3">
             <label for="n-sportello" class="form-label">Numero Sportello:</label>
-            <input type="number" class="form-control" id="n-sportello" min="1" max="<?php echo "$max_sportelli" ?>" value="1" required>
+            <input type="number" class="form-control" id="n-sportello" min="1" max="<?= $max_sportelli ?>" value="1" required>
         </div>
 
         <button type="button" class="btn btn-primary" id="execute-btn">Avvia il controllo dello stato dello sportello</button>
