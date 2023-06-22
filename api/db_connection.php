@@ -25,6 +25,17 @@ function insertSlot($n_sportello, $n_scheda, $n_serratura, $dimensione)
     }
 }
 
+function insertSettings($n_scheda, $n_serratura){
+    global $db;
+
+    try{
+        $stmt = $db->prepare("INSERT INTO settings (n_scheda, n_serratura) VALUES (?, ?)");
+        $stmt->execute([$n_scheda, $n_serratura]);
+    } catch (PDOException $e) {
+        die("Error inserting settings: " . $e->getMessage());
+    }
+}
+
 function getConfiguration(){
     global $db;
 
@@ -33,6 +44,18 @@ function getConfiguration(){
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
         die("Error fetching configuration: ". $e->getMessage());
+    }
+}
+
+function getSettings(){
+    global $db;
+
+    try {
+        $stmt = $db->query("SELECT * FROM settings");
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $response[0];
+        } catch (PDOException $e) {
+        die("Error fetching settings: ". $e->getMessage());
     }
 }
 
@@ -64,6 +87,8 @@ function deleteConfiguration(){
     global $db;
     try{
         $stmt = $db->query("DELETE FROM `scomparti`");
+        $stmt->execute();
+        $stmt = $db->query("DELETE FROM `settings`");
         $stmt->execute();
         return true;
     } catch (PDOException $e) {

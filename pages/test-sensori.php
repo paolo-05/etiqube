@@ -8,16 +8,6 @@ if (!isset($_SESSION['username'])) {
     header("Location: /index.php");
     exit();
 }
-
-if (!file_exists("./../api/db_connection.php")) {
-    die("Database connection file not found.");
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    include_once './../api/db_connection.php';
-    $max_sportelli = getNumeroSportelli() - 1;
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -62,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         </div>
 
         <div class="mb-3">
-            <label for="n-sportello" class="form-label">Numero Sportello:</label>
-            <input type="number" class="form-control" id="n-sportello" min="1" max="<?= $max_sportelli ?>" value="1" required>
+            <label for="n-sportello" class="form-label">Numero scheda</label>
+            <input type="number" class="form-control" id="n-scheda" min="1" max="10" value="1" required>
         </div>
 
         <button type="button" class="btn btn-primary" id="execute-btn">Avvia il controllo dello stato dello sportello</button>

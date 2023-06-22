@@ -17,8 +17,7 @@ function updateConsoleOutput(output) {
 
 // Function to execute the Python script
 function executeScript() {
-  var nSportelloInput = document.getElementById("n-sportello");
-  var nSportello = nSportelloInput.value;
+  var nScheda = document.getElementById("n-scheda").value;
 
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
@@ -31,5 +30,5 @@ function executeScript() {
 
   xhr.open("POST", "/api/execute_script.php", true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhr.send("n_sportello=" + encodeURIComponent(nSportello));
+  xhr.send("n_scheda=" + encodeURIComponent(nScheda));
 }

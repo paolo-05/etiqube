@@ -40,7 +40,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inserimento-vano'
     $slot_rimanenti -= $dimension_int;
 
     require_once "./../api/db_connection.php";
-    insertSlot($n_sportello, $n_scheda, $n_serratura, $dimensione);
+    insertSettings($n_scheda, $n_serratura);
 
     $available = [true, true, true];
     $vano_tecnico_inseribile = false;
@@ -52,6 +52,9 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inserimento-vano'
 // Situazione normale
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slot_rimanenti = $_POST['slot_rimanenti'];
+    if($slot_rimanenti < 0){
+        return;
+    }
     $n_sportello = $_POST['n_sportello'];
     $dimensione = $_POST['dimensione'];
     $n_scheda = $_POST['n_scheda'];
@@ -112,11 +115,9 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $configuratore_attivo = true;
 }
 
-$counter = 0;
-
 include_once './../api/db_connection.php';
-$n_colonne = getNumeroColonne();
 $sportelli = getConfiguration();
+$vano_tecnico = getSettings();
 
 if($sportelli != null && $n_sportello == 1 ){
     $configuratore_attivo = false;
@@ -162,7 +163,6 @@ if($sportelli != null && $n_sportello == 1 ){
                 <h2>Configuratore Colonna</h2>
                 <form method="POST" action="configura-colonna.php">
                     <input type="hidden" name="n_sportello" value="<?= $n_sportello ?>" id="n_sportello">
-                    <input type="hidden" name="n_scheda" value="<?= $n_scheda?>">
                     <input type="hidden" name="slot_rimanenti" value="<?= $slot_rimanenti ?>">
 
                     <div class="mb-3">
@@ -176,6 +176,8 @@ if($sportelli != null && $n_sportello == 1 ){
                             <?php endfor;?>
                         </select>
 
+                        <label for="n_scheda"class="form-label">Numero della scheda</label>
+                        <input type="number" class="form-control" name="n_scheda" id="n_scheda" value="<?= $n_scheda?>" required>
                         <label for="n_serratura" class="form-label">Numero della serratura</label>
                         <input type="number" class="form-control" id="n_serratura" name="n_serratura" id="n_serratura" value="<?= $n_serratura ?>" required>
                     </div>
@@ -206,32 +208,42 @@ if($sportelli != null && $n_sportello == 1 ){
             <div class="col">
                 <h2>Riepilogo configurazione Locker</h2>
                 <div class="table-container">
-                    <?php $counter = 0;
-                    for($i = 0; $i < $n_colonne; $i++) {
-                        echo "<table>";
-                        while(true){
-                            if($sportelli[$counter]['n_scheda'] != ($i+1)){
-                                break;
-                            }
-                            $dimensione = $sportelli[$counter]['dimensione'];
-                            $dimensione_int = intval(substr($dimensione, 0, -1));
-                            $height = $dimensione_int * 30;
+                    <?php $i = 0;
+                    $rimanenti = 11;
+                    echo "<table>";
+                    while($i < count($sportelli)) {
+                        if($vano_tecnico['n_scheda'] == $sportelli[$i]['n_scheda'] && $rimanenti == 9){
+                            $_n_scheda = $vano_tecnico['n_scheda'];
+                            $tooltip_html = "<b>Vano Tecnico</b><br><b>Numero colonna</b>: $_n_scheda";
+                            echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}' style='border: solid #000'><rect width='100' height='{$height}' fill='#fff' /></svg></a></td></tr>";
+                            $rimanenti -= $_dimensione_int;
+                        }else{
+                            $_dimensione = $sportelli[$i]['dimensione'];
+                            $_dimensione_int = intval(substr($_dimensione, 0, -1));
+                            $height = $_dimensione_int * 30;
 
-                            $n_sportello = $sportelli[$counter]['n_sportello'];
-                            $_scheda = $sportelli[$counter]['n_scheda'];
-                            $n_serratura = $sportelli[$counter]['n_serratura'];
+                            $_n_sportello = $sportelli[$i]['n_sportello'];
+                            $_n_scheda = $sportelli[$i]['n_scheda'];
+                            $_n_serratura = $sportelli[$i]['n_serratura'];
 
-                            if($sportelli[$counter]['n_sportello'] == $sportelli[$counter + 1]['n_sportello']){
-                                $tooltip_html = "<b>Vano Tecnico</b><br><b>Numero colonna</b>: $n_scheda";
-                                echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}' style='border: solid #000'><rect width='100' height='{$height}' fill='#fff' /></svg></a></td></tr>";
-                            } else {
-                                $tooltip_html = "<b>Numero sportello</b>: $n_sportello<br><b>Dimensione</b>: $dimensione<br><b>Numero colonna</b>: $n_scheda<br><b>Numero serratura</b>: $n_serratura";
-                                echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#000' /></svg></a></td></tr>";
+                            $tooltip_html = "<b>Numero sportello</b>: $_n_sportello<br><b>Dimensione</b>: $_dimensione<br><b>Numero colonna</b>: $_n_scheda<br><b>Numero serratura</b>: $_n_serratura";
+                            echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='$tooltip_html'><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#000' /></svg></a></td></tr>";
+
+                            $rimanenti -= $_dimensione_int;
+                            if(end($sportelli) == $sportelli[$i] && $rimanenti != 0){
+                                $height = $rimanenti * 30 + $rimanenti * 1.5;
+                                echo "<tr><td><a href='#' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-html='true' data-bs-title='Spazio Rimanente'><svg width='100' height='{$height}'><rect width='100' height='{$height}' fill='#bbb' /></svg></a></td></tr>";
                             }
-                            $counter+=1;
+
+                            $i += 1;
+                            $empty_space -= 1;
                         }
-                        echo "</table>";
+                        if($rimanenti == 0){
+                            echo "</table><table>";
+                            $rimanenti = 11;
+                        }
                     }
+                    echo "</table>";
                     ?>
                 </div>
                 <br><br>

@@ -33,7 +33,7 @@ if (slotRimanenti == 0) {
 const deleteConfigurationButton = document.getElementById(
   "deleteConfiguration"
 );
-deleteConfigurationButton.addEventListener("click", function (event) {
+deleteConfigurationButton.addEventListener("click", function () {
   var confirmation = confirm(
     "Sicuro di voler cancellare la configurazione? Questa operazione non può essere ripristinata."
   );
@@ -44,7 +44,7 @@ deleteConfigurationButton.addEventListener("click", function (event) {
     "http://127.0.0.1:8080/api/db_connection.php?action=deleteCofiguration";
 
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", deleteUrl, true);
+
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       alert("Configurazione cancellata con successo!");
@@ -57,6 +57,8 @@ deleteConfigurationButton.addEventListener("click", function (event) {
       }
     }
   };
+  xhr.open("POST", deleteUrl, true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xhr.send();
 });
 
