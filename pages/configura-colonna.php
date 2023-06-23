@@ -236,7 +236,6 @@ if($sportelli != null && $n_sportello == 1 ){
                             }
 
                             $i += 1;
-                            $empty_space -= 1;
                         }
                         if($rimanenti == 0){
                             echo "</table><table>";
